@@ -1,99 +1,189 @@
 #include <iostream>
-#include <vector>
+#include <ctime>
+#include <cstdlib>
 #include <algorithm>
+#include <vector>
 
 using namespace std;
 
-int partition(vector<int> &a, int low, int high, long long &comparisons, long long &moves) {
-    int mid = low + (high - low) / 2;
-    swap(a[mid], a[high]);
-    moves += 3;
+void insertionSort(int arr[], int n) {
+    for (int i = 1; i < n; ++i) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j = j - 1;
+        }
+        arr[j + 1] = key;
+    }
+}
 
-    int pivot = a[high];
-    moves++;
-    int i = low - 1;
+void selectionSort(int arr[], int n) {
+    for (int i = 0; i < n - 1; ++i) {
+        int min_idx = i;
+        for (int j = i + 1; j < n; ++j) {
+            if (arr[j] < arr[min_idx]) {
+                min_idx = j;
+            }
+        }
+        swap(arr[min_idx], arr[i]);
+    }
+}
 
-    for (int j = low; j < high; j++) {
-        comparisons++;
-        if (a[j] < pivot) {
-            i++;
-            swap(a[i], a[j]);
-            moves += 3;
+void bubbleSort(int arr[], int n) {
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = 0; j < n - i - 1; ++j) {
+            if (arr[j] > arr[j + 1]) {
+                swap(arr[j], arr[j + 1]);
+            }
         }
     }
-    swap(a[i + 1], a[high]);
-    moves += 3;
-    return i + 1;
 }
 
-void quickSortHelper(vector<int> &a, int low, int high, long long &comparisons, long long &moves) {
+int partitionAlg(int arr[], int low, int high) {
+    int pivot = arr[high];
+    int i = (low - 1);
+    for (int j = low; j <= high - 1; j++) {
+        if (arr[j] < pivot) {
+            i++;
+            swap(arr[i], arr[j]);
+        }
+    }
+    swap(arr[i + 1], arr[high]);
+    return (i + 1);
+}
+
+void quickSort(int arr[], int low, int high) {
     if (low < high) {
-        int pi = partition(a, low, high, comparisons, moves);
-        quickSortHelper(a, low, pi - 1, comparisons, moves);
-        quickSortHelper(a, pi + 1, high, comparisons, moves);
+        int pi = partitionAlg(arr, low, high);
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
     }
 }
 
-void customQuickSort(vector<int> &a, long long &comparisons, long long &moves) {
-    if (!a.empty()) {
-        quickSortHelper(a, 0, a.size() - 1, comparisons, moves);
+void merge(int a[], int l, int m, int r) {
+    vector<int> left(a + l, a + m + 1);
+    vector<int> right(a + m + 1, a + r + 1);
+    int i = 0, j = 0, k = l;
+
+    while (i < left.size() && j < right.size()) {
+        if (left[i] <= right[j]) a[k++] = left[i++];
+        else a[k++] = right[j++];
+    }
+    while (i < left.size()) a[k++] = left[i++];
+    while (j < right.size()) a[k++] = right[j++];
+}
+
+void mergeSort(int arr[], int l, int r) {
+    if (l >= r) return;
+    int m = l + (r - l) / 2;
+    mergeSort(arr, l, m);
+    mergeSort(arr, m + 1, r);
+    merge(arr, l, m, r);
+}
+
+void heapify(int arr[], int n, int i) {
+    int largest = i;
+    int l = 2 * i + 1;
+    int r = 2 * i + 2;
+    if (l < n && arr[l] > arr[largest])
+        largest = l;
+    if (r < n && arr[r] > arr[largest])
+        largest = r;
+    if (largest != i) {
+        swap(arr[i], arr[largest]);
+        heapify(arr, n, largest);
     }
 }
 
-bool descendingCompare(int x, int y) {
-    return x > y;
+void heapSort(int arr[], int n) {
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i);
+    for (int i = n - 1; i > 0; i--) {
+        swap(arr[0], arr[i]);
+        heapify(arr, i, 0);
+    }
 }
 
-int nextRandom(unsigned int &seed) {
-    seed = seed * 1103515245u + 12345u;
-    return (seed / 65536u) % 32768u;
+void copyArray(int source[], int dest[], int n) {
+    for (int i = 0; i < n; ++i) {
+        dest[i] = source[i];
+    }
+}
+
+void problem1(int originalArray[], int n) {
+    cout << "LAB 1: PROBLEM 1 \n";
+    
+    int* arr = new int[n];
+    clock_t start, end;
+
+    copyArray(originalArray, arr, n);
+    start = clock();
+    insertionSort(arr, n);
+    end = clock();
+    cout << "Insertion Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
+
+    copyArray(originalArray, arr, n);
+    start = clock();
+    selectionSort(arr, n);
+    end = clock();
+    cout << "Selection Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
+
+    copyArray(originalArray, arr, n);
+    start = clock();
+    bubbleSort(arr, n);
+    end = clock();
+    cout << "Bubble Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
+
+    copyArray(originalArray, arr, n);
+    start = clock();
+    quickSort(arr, 0, n - 1);
+    end = clock();
+    cout << "Quick Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
+
+    copyArray(originalArray, arr, n);
+    start = clock();
+    mergeSort(arr, 0, n - 1);
+    end = clock();
+    cout << "Merge Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
+
+    copyArray(originalArray, arr, n);
+    start = clock();
+    heapSort(arr, n);
+    end = clock();
+    cout << "Heap Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
+
+    delete[] arr;
+    cout << "\n";
+}
+
+void problem2(int originalArray[], int n) {
+    cout << "LAB 1: PROBLEM 2 \n";
+    
+    int* arr = new int[n];
+    copyArray(originalArray, arr, n);
+    
+    clock_t start = clock();
+    sort(arr, arr + n);
+    clock_t end = clock();
+    
+    cout << "STL Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
+    
+    delete[] arr;
 }
 
 int main() {
-    vector<int> sample = {45, 12, 85, 32, 89, 39, 69, 44, 42, 1, 45};
-
-    sort(sample.begin(), sample.end());
-    cout << "STL sort on vector (ascending): ";
-    for (size_t i = 0; i < sample.size(); i++) {
-        cout << sample[i] << " ";
-    }
-    cout << endl;
-
-    sort(sample.begin(), sample.end(), descendingCompare);
-    cout << "STL sort on vector (descending): ";
-    for (size_t i = 0; i < sample.size(); i++) {
-        cout << sample[i] << " ";
-    }
-    cout << endl;
-
-    int n;
-    cout << "Enter size for empirical comparison: ";
-    if (!(cin >> n) || n <= 0) {
-        n = 50000;
-        cout << n << endl;
+    const int SIZE = 10000;
+    int* originalArray = new int[SIZE];
+    
+    srand(time(NULL));
+    for (int i = 0; i < SIZE; ++i) {
+        originalArray[i] = rand() % 100000;
     }
 
-    vector<int> original(n);
-    unsigned int seed = 12345;
-    for (int i = 0; i < n; i++) {
-        original[i] = nextRandom(seed);
-    }
+    problem1(originalArray, SIZE);
+    problem2(originalArray, SIZE);
 
-    vector<int> a = original;
-    long long quickComp = 0;
-    long long quickMoves = 0;
-    customQuickSort(a, quickComp, quickMoves);
-    cout << "Custom Quick Sort -> Comparisons: " << quickComp << ", Moves: " << quickMoves << ", Total: " << (quickComp + quickMoves) << endl;
-
-    vector<int> b = original;
-    sort(b.begin(), b.end());
-    cout << "STL sort sorted " << b.size() << " elements successfully." << endl;
-
-    cout << endl;
-    cout << "Comparison Summary:" << endl;
-    cout << "Algorithm: STL sort uses Introsort (Quick Sort with median-of-three, Heap Sort fallback, Insertion Sort for small partitions)." << endl;
-    cout << "Complexity: Guaranteed O(N log N) worst-case time complexity, O(log N) auxiliary space." << endl;
-    cout << "Flexibility: Supports any RandomAccessIterator and custom predicate or comparator function." << endl;
-
+    delete[] originalArray;
     return 0;
 }
