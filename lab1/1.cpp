@@ -158,20 +158,7 @@ void problem1(int originalArray[], int n) {
     delete[] arr;
 }
 
-void problem2(int originalArray[], int n) {
-    cout << "LAB 1: PROBLEM 2 \n";
-    
-    int* arr = new int[n];
-    copyArray(originalArray, arr, n);
-    
-    clock_t start = clock();
-    sort(arr, arr + n);
-    clock_t end = clock();
-    
-    cout << "STL Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
-    
-    delete[] arr;
-}
+
 
 int main() {
     const int SIZE = 10000;
