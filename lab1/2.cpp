@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <vector>
+#include <string>
 
 using namespace std;
 
@@ -82,29 +83,6 @@ void mergeSort(int arr[], int l, int r) {
     merge(arr, l, m, r);
 }
 
-void heapify(int arr[], int n, int i) {
-    int largest = i;
-    int l = 2 * i + 1;
-    int r = 2 * i + 2;
-    if (l < n && arr[l] > arr[largest])
-        largest = l;
-    if (r < n && arr[r] > arr[largest])
-        largest = r;
-    if (largest != i) {
-        swap(arr[i], arr[largest]);
-        heapify(arr, n, largest);
-    }
-}
-
-void heapSort(int arr[], int n) {
-    for (int i = n / 2 - 1; i >= 0; i--)
-        heapify(arr, n, i);
-    for (int i = n - 1; i > 0; i--) {
-        swap(arr[0], arr[i]);
-        heapify(arr, i, 0);
-    }
-}
-
 void copyArray(int source[], int dest[], int n) {
     for (int i = 0; i < n; ++i) {
         dest[i] = source[i];
@@ -116,45 +94,68 @@ void problem1(int originalArray[], int n) {
     
     int* arr = new int[n];
     clock_t start, end;
+    double t;
+
+    string fastest_alg = "";
+    string slowest_alg = "";
+    double min_time = 1e9;
+    double max_time = -1.0;
+
+    auto updateStats = [&](string name, double time_taken) {
+        if (time_taken < min_time) {
+            min_time = time_taken;
+            fastest_alg = name;
+        }
+        if (time_taken > max_time) {
+            max_time = time_taken;
+            slowest_alg = name;
+        }
+    };
 
     copyArray(originalArray, arr, n);
     start = clock();
     insertionSort(arr, n);
     end = clock();
-    cout << "Insertion Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
+    t = double(end - start) / CLOCKS_PER_SEC;
+    cout << "Insertion Sort: " << t << " s\n";
+    updateStats("Insertion Sort", t);
 
     copyArray(originalArray, arr, n);
     start = clock();
     selectionSort(arr, n);
     end = clock();
-    cout << "Selection Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
+    t = double(end - start) / CLOCKS_PER_SEC;
+    cout << "Selection Sort: " << t << " s\n";
+    updateStats("Selection Sort", t);
 
     copyArray(originalArray, arr, n);
     start = clock();
     bubbleSort(arr, n);
     end = clock();
-    cout << "Bubble Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
+    t = double(end - start) / CLOCKS_PER_SEC;
+    cout << "Bubble Sort: " << t << " s\n";
+    updateStats("Bubble Sort", t);
 
     copyArray(originalArray, arr, n);
     start = clock();
     quickSort(arr, 0, n - 1);
     end = clock();
-    cout << "Quick Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
+    t = double(end - start) / CLOCKS_PER_SEC;
+    cout << "Quick Sort: " << t << " s\n";
+    updateStats("Quick Sort", t);
 
     copyArray(originalArray, arr, n);
     start = clock();
     mergeSort(arr, 0, n - 1);
     end = clock();
-    cout << "Merge Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
+    t = double(end - start) / CLOCKS_PER_SEC;
+    cout << "Merge Sort: " << t << " s\n";
+    updateStats("Merge Sort", t);
 
-    copyArray(originalArray, arr, n);
-    start = clock();
-    heapSort(arr, n);
-    end = clock();
-    cout << "Heap Sort: " << double(end - start) / CLOCKS_PER_SEC << " s\n";
+    cout << "\n=> Fastest: " << fastest_alg << " (" << min_time << " s)\n";
+    cout << "=> Slowest: " << slowest_alg << " (" << max_time << " s)\n\n";
 
     delete[] arr;
-    cout << "\n";
 }
 
 void problem2(int originalArray[], int n) {
